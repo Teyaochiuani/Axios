@@ -32,3 +32,74 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+##Integración de Axios en Next.js con API de Pokémon
+Este proyecto utiliza Axios para realizar solicitudes a la API de Pokémon en una aplicación Next.js. Sigue estos pasos para integrarlo en tu proyecto:
+
+Paso 1: Instalar Axios
+Asegúrate de tener Axios instalado en tu proyecto. Si no lo has hecho aún, puedes instalarlo utilizando npm:
+
+bash
+Copy code
+npm install axios
+Paso 2: Crear una función de utilidad para hacer solicitudes a la API de Pokémon
+Crea un archivo pokemonApi.js en tu directorio de utilidades (por ejemplo, utils o lib) y define una función que utilice Axios para hacer solicitudes a la API de Pokémon:
+
+javascript
+Copy code
+import axios from 'axios';
+
+const baseURL = 'https://pokeapi.co/api/v2';
+
+const pokemonApi = axios.create({
+  baseURL,
+});
+
+export const getPokemon = async (pokemonName) => {
+  try {
+    const response = await pokemonApi.get(`/pokemon/${pokemonName}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Pokemon:', error);
+    throw error;
+  }
+};
+Paso 3: Hacer uso de la función de utilidad en tus componentes
+Puedes importar y utilizar la función getPokemon en tus componentes de Next.js para hacer solicitudes a la API de Pokémon. Aquí tienes un ejemplo básico de cómo hacerlo:
+
+javascript
+Copy code
+import { useEffect, useState } from 'react';
+import { getPokemon } from '../utils/pokemonApi';
+
+export default function PokemonPage() {
+  const [pokemonData, setPokemonData] = useState(null);
+  const pokemonName = 'pikachu'; // Nombre del Pokémon que deseas buscar
+
+  useEffect(() => {
+    const fetchPokemonData = async () => {
+      try {
+        const data = await getPokemon(pokemonName);
+        setPokemonData(data);
+      } catch (error) {
+        // Manejar errores
+      }
+    };
+
+    fetchPokemonData();
+  }, []);
+
+  return (
+    <div>
+      {pokemonData ? (
+        <div>
+          <h1>{pokemonData.name}</h1>
+          <img src={pokemonData.sprites.front_default} alt={pokemonData.name} />
+          {/* Agrega más detalles del Pokémon según lo necesites */}
+        </div>
+      ) : (
+        <p>Cargando...</p>
+      )}
+    </div>
+  );
+}
